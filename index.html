@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>음악수행</title>
+<title>음악 감상 수행평가</title>
 <style>
   :root{--bg:#1f0029;--panel:#2d1536;--ink:#1c0523;--sub:#7d6e86;--accent:#22002b;--line:#ebe4ee;--out:cubic-bezier(.22,1,.36,1)}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -16,10 +16,10 @@
   .head .sub{font-size:12px;color:var(--sub);margin-top:4px}
 
   /* 탭 + 구독 버튼 한 줄 */
-  .head{position:sticky;top:8px;z-index:20;margin:0 0 12px;padding:8px;border-radius:26px;background:rgba(31,0,41,.9);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .head{position:sticky;top:0;z-index:20;margin:-12px -10px 12px;padding:8px 18px;border-radius:0 0 26px 26px;background:rgba(31,0,41,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
   .tabRow{display:flex;align-items:center;gap:6px;margin:8px 0 0}
   .volRow{flex:1;min-width:0;display:flex;align-items:center;padding:0 8px}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:38px;margin:0;background:transparent;cursor:pointer;touch-action:none}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:38px;margin:0;background:transparent;cursor:pointer;touch-action:pan-y}
   input[type=range]:focus{outline:none}
   input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,#f1e8f5 var(--p),rgba(255,255,255,.2) var(--p))}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-4px;border-radius:50%;background:#f1e8f5;border:0;transition:transform .3s var(--out)}
@@ -37,12 +37,12 @@
   .ytBtn:active{transform:scale(.97)}
   .ytBtn span{position:relative;z-index:1}
   .ytBtn svg{position:relative;z-index:1;flex-shrink:0;margin-left:8px}
-  .ytBtn::before{content:"";position:absolute;top:0;bottom:0;left:0;right:0;z-index:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%);transform:translate3d(-100%,0,0);backface-visibility:hidden;will-change:transform;animation:shine 7s linear infinite;pointer-events:none}
-  @keyframes shine{0%{transform:translate3d(-100%,0,0)}90%,100%{transform:translate3d(100%,0,0)}}
+  .ytBtn::before{content:"";position:absolute;top:0;bottom:0;left:0;right:0;z-index:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%);transform:translate3d(-100%,0,0);backface-visibility:hidden;will-change:transform;animation:shine 6s cubic-bezier(.4,0,.2,1) infinite;pointer-events:none}
+  @keyframes shine{0%{transform:translate3d(-100%,0,0)}35%,100%{transform:translate3d(100%,0,0)}}
 
   /* 화면 전환: 블러가 풀리며 ease-out으로 */
   .screen{display:none}
-  .screen.active{display:block;animation:rise .6s var(--out) both}
+  .screen.active{display:block;animation:fadeIn .35s ease-out both}
   @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
   @keyframes riseSoft{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
   @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
@@ -71,15 +71,16 @@
   .num .n{display:none}
   .meta{flex:1;min-width:0;font-size:15px;font-weight:700;color:var(--ink);line-height:1.35}
   .eq{display:none}
-  .spin{display:none;width:14px;height:14px;border-radius:50%;border:2px solid #e6dcec;border-top-color:var(--accent);box-sizing:border-box;flex-shrink:0}
-  .track.loading .spin{display:block;animation:spinRot .8s linear infinite}
+  .spin{display:block;opacity:0;transition:opacity .25s ease-out;width:14px;height:14px;border-radius:50%;border:2px solid #e6dcec;border-top-color:var(--accent);box-sizing:border-box;flex-shrink:0}
+  .track.loading .spin{opacity:1;animation:spinRot .8s linear infinite}
   .tBody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--out)}
   .track.open .tBody{grid-template-rows:1fr}
   .tInner{min-height:0;overflow:hidden}
   .pad{padding:0 12px 14px;opacity:0;transform:translateY(-6px);transition:opacity .35s var(--out),transform .5s var(--out)}
   .track.open .pad{opacity:1;transform:none;transition-delay:.06s}
-  .bar{position:relative;height:6px;border-radius:3px;background:var(--line);overflow:hidden;cursor:pointer;touch-action:none}
-  .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);border-radius:3px;transition:width .3s linear}
+  .bar{position:relative;height:20px;margin:0 0 -8px;cursor:pointer;touch-action:pan-y}
+  .bar::before{content:"";position:absolute;left:0;right:0;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--line);transition:transform .3s var(--out)}
+  .fill{position:absolute;left:0;top:50%;height:6px;margin-top:-3px;width:0;background:var(--accent);border-radius:3px;transition:width .3s linear,transform .3s var(--out)}
   .bar.drag .fill{transition:none}
   .pTimes{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:8px;font-variant-numeric:tabular-nums;font-weight:700}
   .missWrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--out)}
@@ -90,9 +91,12 @@
   .qcard{background:var(--panel);border-radius:36px;padding:12px;margin-bottom:12px;overflow:hidden}
   .qcard{scroll-margin-top:var(--headOff,100px);scroll-margin-bottom:16px}
   #quizList{padding-bottom:70vh}
+  /* 전체 초기화: 평소에는 화면 하단에 떠 있고, 맨 아래로 내리면 마지막 카드 바로 아래에 위치 */
+  .quizFoot{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;justify-content:center;padding:8px 0}
+  .quizFoot .btn.ghost{background:rgba(24,8,34,.92);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);margin:0}
   .qcard.anim{animation:qIn .5s var(--out) both}
   .qcard.enter{animation:qIn .8s var(--out) both}
-  .qcard.done{padding:10px 12px}
+  .qcard.done{padding:12px}
   .qTitle{font-size:14px;font-weight:800;color:#d8c8e2;margin:2px 14px 10px}
   .playRow{display:flex;gap:8px;margin-bottom:10px}
   .playRow .btn.play{width:auto;height:40px;margin:0;padding:0 16px;border-radius:999px;background:#fff;color:var(--ink);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;flex:0 0 auto;transition:background-color .3s var(--out),transform .25s var(--out)}
@@ -105,8 +109,8 @@
   .playRow .resetBtn{display:none;margin:0;width:auto;height:40px;padding:0 16px;border-radius:999px;background:#3a2046;color:#fff;border:0;font-size:14px;font-weight:800;cursor:pointer}
   .playRow .resetBtn.show{display:block;animation:fadeIn .5s var(--out) both}
   .qProg{margin-bottom:12px}
-  .qBar{height:6px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
-  .qFill{height:100%;width:0;background:#fff;border-radius:3px;transition:width .3s linear}
+  .qBar{height:10px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden}
+  .qFill{height:100%;width:0;background:#fff;border-radius:5px;transition:width .3s linear}
   .quizFoot{padding:0}
   .quizFoot .btn{margin-top:0;animation:riseSoft .7s var(--out) .15s backwards}
 
@@ -125,8 +129,8 @@
   .rowOpts{display:grid;gap:6px;padding:0 10px 10px;max-height:300px;overflow-y:auto;opacity:0;transform:translateY(-6px);transition:opacity .35s var(--out),transform .5s var(--out)}
   .row.open .rowOpts{opacity:1;transform:none;transition-delay:.05s}
   .opt{border:0;background:#f4eef7;border-radius:999px;padding:10px 12px;text-align:left;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;transition:background-color .25s var(--out),transform .25s var(--out)}
-  .row.open .opt{animation:optIn .5s var(--out) both;animation-delay:calc(var(--i,0) * 40ms + 80ms)}
-  @keyframes optIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+  .row.open .opt{animation:optIn .4s var(--out) backwards;animation-delay:calc(var(--i,0) * 30ms)}
+  @keyframes optIn{from{transform:translateY(-6px);}to{transform:none;}}
   .opt:active{transform:scale(.98);background:#ebdff1}
   .row[data-k="composer"] .rowOpts{grid-template-columns:1fr 1fr}
   .row[data-k="era"] .rowOpts{grid-template-columns:repeat(3,1fr)}
@@ -135,7 +139,7 @@
   .btn:active:not(:disabled){transform:scale(.98)}
   .btn:disabled{background:rgba(255,255,255,.14);color:rgba(255,255,255,.45);cursor:default}
   .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28)}
-  .btnRow{display:flex;gap:8px;margin-top:12px}
+  .btnRow{display:flex;gap:8px;margin-top:8px}
   .btnRow .btn{margin-top:0}
   .btnRow .btn.ghost{flex:1}
   .btnRow #mainBtn{flex:1;width:auto}
@@ -148,13 +152,20 @@
   .rePlay.isPlaying{background:var(--accent);color:#fff}
   .rePlay.isPlaying .ic-play{display:none}
   .rePlay.isPlaying .ic-pause{display:block}
-  .sList{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+  .sList{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
   .sPill{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:800;background:#fff;color:var(--ink)}
   .sLab{width:40px;flex-shrink:0;font-size:12px;color:var(--sub)}
   .sVals{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;white-space:normal}
-  .sWrong{min-width:0;overflow-wrap:anywhere;text-decoration:line-through;text-decoration-thickness:0.91px;color:#c0392b}
+  .sWrong{min-width:0;overflow-wrap:anywhere;color:#c0392b;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 58%;background-size:0 1px;animation:strikeDraw .5s ease-out forwards,toBad .5s ease-out both}
   .sVal{min-width:0;overflow-wrap:anywhere}
-  .sPill.ok .sVal{color:#2f9e44}
+  .sPill.ok .sVal{animation:toOk .5s ease-out both}
+  .sPill.ng .sVal{animation:fadeIn .5s ease-out both}
+  @keyframes strikeDraw{to{background-size:100% 1px}}
+  .sPill{position:relative;will-change:transform}
+  .sVals > span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;max-width:100%;line-height:1.3}
+  .sPill .pt{position:absolute;left:50%;top:50%;border-radius:50%;pointer-events:none;z-index:2}
+  @keyframes toBad{from{color:var(--ink)}to{color:#c0392b}}
+  @keyframes toOk{from{color:var(--ink)}to{color:#2f9e44}}
   .qRows{display:block}
 
   .score{text-align:center;padding:16px 0;color:#fff}
@@ -169,7 +180,7 @@
   /* ================= PC 레이아웃 (넓은 화면) ================= */
   @media (min-width:900px){
     body{max-width:780px;padding:28px 24px 100px}
-    .head{top:16px;padding:10px;border-radius:32px;margin-bottom:18px}
+    .head{top:0;padding:10px 24px;border-radius:0 0 32px 32px;margin:-28px -24px 18px}
     .tabRow{margin-top:10px;gap:10px}
     .ytBtn{height:46px;font-size:17px}
     .ytBtn svg{width:24px;height:24px}
@@ -213,13 +224,12 @@
 
     /* 곡 카드: 마우스를 올리면 살짝 떠오르고 번호 버튼이 커짐 */
     .track{cursor:pointer;transition:box-shadow .5s var(--out),transform .45s var(--out)}
-    .track:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,.3)}
+    .track:hover{box-shadow:0 12px 26px rgba(0,0,0,.3)}
     .track.open:hover{transform:none}
     .tHead:hover .num{transform:scale(1.12)}
     .tHead .meta{transition:transform .45s var(--out)}
     .tHead:hover .meta{transform:translateX(4px)}
-    .bar{transition:height .3s var(--out)}
-    .bar:hover{height:10px}
+        .bar:hover::before,.bar:hover .fill{transform:scaleY(1.7)}
     .bar:hover .fill{box-shadow:0 0 10px rgba(34,0,43,.45)}
 
     /* 탭 / 구독 버튼 */
@@ -238,22 +248,16 @@
 
     /* 시험 항목 / 보기 / 버튼 */
     .rowHead:hover:not(:disabled){background:#f6f0f9}
-    .opt:hover{background:#e9dcf0;transform:translateX(4px)}
-    .row[data-k="composer"] .opt:hover,.row[data-k="era"] .opt:hover{transform:translateY(-2px)}
-    .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.28)}
+    .opt:hover{background:#e9dcf0}
+    
+    .btn:hover:not(:disabled){transform:scale(1.02);box-shadow:0 8px 18px rgba(0,0,0,.28)}
     .btn.ghost:hover{background:rgba(255,255,255,.1)}
-    .playRow .btn.play:hover,.rePlay:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(0,0,0,.25)}
+    .playRow .btn.play:hover,.rePlay:hover{transform:scale(1.03);box-shadow:0 8px 16px rgba(0,0,0,.25)}
     .playRow .resetBtn:hover{background:#4a2a58}
 
     /* 음량 슬라이더 */
     input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.25);box-shadow:0 0 0 6px rgba(241,232,245,.18)}
 
-    /* 등장 애니메이션: 곡 카드가 순서대로 올라옴 */
-    #listen.active .track{animation:riseSoft .7s var(--out) backwards;animation-delay:calc(var(--d,0) * 35ms + 120ms)}
-    #listen.active .track:nth-child(n+2){--d:1}
-    #listen.active .track:nth-child(n+3){--d:2}
-    #listen.active .track:nth-child(n+4){--d:3}
-    #listen.active .track:nth-child(n+5){--d:4}
 
     /* 키보드 포커스 표시 */
     button:focus-visible,a:focus-visible{outline:2px solid #ffc4e4;outline-offset:2px}
@@ -262,6 +266,106 @@
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
   }
+
+  /* 시험 카드: 제출 전/후 레이아웃 통일 — 카드 안쪽 여백 전부 동일 */
+  .qcard{padding:12px}
+  .sRow{display:grid;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;row-gap:8px;column-gap:10px;align-items:start}
+  .sRow .qNo{grid-column:1;grid-row:1;justify-self:center;align-self:stretch;display:flex;align-items:center;min-height:32px;font-size:13px;font-weight:800;color:#d8c8e2;white-space:nowrap}
+  .sRow .resetBtn{grid-column:2;grid-row:1;justify-self:end;align-self:center;display:none;margin:0;height:32px;padding:0 12px;border:0;border-radius:999px;background:#3a2046;color:#fff;font-size:13px;font-weight:800;cursor:pointer}
+  .sRow .resetBtn.show{display:block;animation:fadeIn .5s var(--out) both}
+  .sRow .rePlay{grid-column:1;grid-row:2;justify-self:center;width:40px;height:40px;padding:0;margin:0;border-radius:50%;flex-shrink:0;color:var(--ink)}
+  .sRow .sList{grid-column:2;grid-row:2}
+  .sRow .qTop{grid-column:2;grid-row:1;justify-self:start;width:68%;display:flex;align-items:center;gap:8px;min-width:0;min-height:32px}
+  .sRow .qProg{flex:1;min-width:0;margin:0}
+  .sRow .rePlay .pl{display:flex}
+  .sRow .rePlay .pl svg{width:16px;height:16px;display:block}
+  .sRow .rePlay.isPlaying{color:#fff}
+  .sRow .rePlay.isPlaying .qCurTxt{color:#fff}
+  .sRow .qCurTxt{font-size:14px}
+  .row{border-radius:20px;margin-bottom:0}
+  .row .rowHead{min-height:40px;padding:6px 14px;gap:8px;justify-content:flex-start;font-size:14px}
+  .row .rl{width:40px;flex-shrink:0;font-size:12px;color:var(--sub)}
+  .row .rv{flex:1;min-width:0;text-align:left}
+  .row .rv.empty{color:#b9abc0}
+  .qProg{margin:0 0 8px}
+  @media (min-width:900px){
+    .row{border-radius:23px}
+    .qcard{padding:16px}
+    .sRow{grid-template-columns:60px minmax(0,1fr)}
+    .sRow .qBar{height:12px;border-radius:6px}
+    .sRow .qFill{border-radius:6px}
+    .sRow .qNo{font-size:14px}
+    .sRow .resetBtn{height:32px;font-size:13px}
+    .sRow .qNo{min-height:32px}
+    .sRow .rePlay{width:46px;height:46px}
+    .sRow .qCurTxt{font-size:16px}
+    .row .rowHead{min-height:46px;padding:8px 18px;font-size:16px}
+    .row .rl{width:52px;font-size:13px}
+  }
+
+  /* 상단 한 줄: 문제 N · 재생 · 진행 바 · 초기화 (같은 높이, 세로 가운데) / 아래 답 칸은 전체 너비 */
+  .sRow{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+  .sRow .qTop{display:flex;align-items:center;gap:8px;min-height:40px;min-width:0;width:auto;grid-column:auto;grid-row:auto;justify-self:auto}
+  .sRow .qNo{display:flex;align-items:center;flex-shrink:0;white-space:nowrap;min-height:0;align-self:auto;justify-self:auto;grid-column:auto;grid-row:auto}
+  .sRow .playSlot{display:none}
+  .sRow .rePlay{grid-column:auto;grid-row:auto;justify-self:auto;align-self:auto;flex-shrink:0;margin:0}
+  .sRow .qProg{flex:1;min-width:0;margin:0}
+  .sRow .qTop{padding:0 14px}
+  .sRow .resetBtn{grid-column:auto;grid-row:auto;justify-self:auto;align-self:auto;flex-shrink:0}
+  .sRow .sList{grid-column:auto;grid-row:auto;width:100%}
+  .sRow .qBar{height:12px;border-radius:6px}
+  .sRow .qFill{border-radius:6px}
+  .sRow .rePlay{width:56px;height:24px;border-radius:12px}
+  .sRow .qNo{display:none}
+  .sRow .rePlay .pl svg{width:16px;height:16px}
+
+  /* ===== 새 디자인 ===== */
+  .sRow{gap:0}
+  .sRow .qTop{padding:0;min-height:0;gap:0;justify-content:flex-start}
+  .sRow .qTop .resetBtn{margin-left:auto}
+  .sRow .rePlay{width:auto;height:38px;padding:0 18px;gap:8px;border-radius:19px;background:#fff;color:#1c0523;font-size:16px;font-weight:800}
+  .sRow .rePlay .pl svg{width:16px;height:16px}
+  .sRow .qTime{font-size:16px;font-weight:800;color:#1c0523;font-variant-numeric:tabular-nums}
+  .sRow .qProg{display:none}
+  .sRow .sList{margin-top:14px}
+  .sRow .qBar{height:6px;border-radius:3px;background:rgba(255,255,255,.18)}
+  .sRow .qFill{border-radius:3px;background:#fff}
+  .sRow .sList{gap:7px}
+  .row{border-radius:21px;margin:0}
+  .row .rowHead{height:42px;padding:0 20px;font-size:15px}
+  .row .rl{width:auto;white-space:nowrap;font-size:14px;color:#7c6a8a}
+  .row .rv{flex:1;min-width:0;text-align:right;font-size:15px}
+  .sLab{width:auto;min-width:52px;white-space:nowrap;flex-shrink:0}
+  .btnRow{margin-top:12px}
+  #mainBtn{height:42px}
+
+  /* ===== 결과 애니메이션: 칸마다 순서대로 (날아옴 → 줄 긋기 → 색 변화 → 정답 등장), 모두 ease-out ===== */
+  .sPill .sWrong{animation:strikeDraw .6s ease-out calc(var(--i) * 45ms + 160ms) forwards,toBad .6s ease-out calc(var(--i) * 45ms + 160ms) both}
+  .sPill .sWrong + .sVal{animation:valIn .5s ease-out calc(var(--i) * 45ms + 420ms) both}
+  .sPill.ok .sVal{animation:toOk .6s ease-out calc(var(--i) * 45ms + 160ms) both}
+  .sPill.ng .sVal:not(.sWrong + .sVal){animation:none}
+  @keyframes valIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+
+  /* ===== 버튼 변화 애니메이션 / 요약 제목 크기 고정 ===== */
+  .sRow .rePlay{min-width:112px;transition:background-color .3s ease-out,color .3s ease-out,transform .25s ease-out}
+  .rePlay.isPlaying{transform:scale(1.04)}
+  @keyframes enableIn{from{transform:scale(.96);opacity:.7}to{transform:scale(1);opacity:1}}
+  #mainBtn:not(:disabled){animation:enableIn .35s ease-out}
+  .sLab{font-size:14px;font-weight:700;color:#7c6a8a}
+
+  /* ===== 수정 ===== */
+  body{min-height:100dvh}
+  .volIc{flex:0 0 auto;margin-right:6px;color:#f1e8f5;opacity:.75}
+  /* 제출 결과 애니메이션은 방금 제출한 카드(.fresh)에서만 재생 (탭 전환/새로고침 때 다시 재생되지 않게) */
+  .sWrong{color:#c0392b;background-size:100% 1px}
+  .sPill.ok .sVal{color:#2b8a3e}
+  @keyframes strikeDraw{from{background-size:0 1px}to{background-size:100% 1px}}
+  @keyframes toOk{from{color:var(--ink)}to{color:#2b8a3e}}
+  .qcard:not(.fresh) .sPill .sWrong,.qcard:not(.fresh) .sPill .sVal{animation:none}
+  .rv.empty,.row .rv.empty{color:#80718a}
+  /* 키보드 포커스는 모든 환경에서 표시 */
+  button:focus-visible,a:focus-visible{outline:2px solid #ffc4e4;outline-offset:2px}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(255,196,228,.5)}
 </style>
 </head>
 <body>
@@ -274,7 +378,7 @@
       <button id="tabListen" class="on">듣기</button>
       <button id="tabQuiz">시험</button>
     </nav></div>
-    <div class="volRow"><input type="range" id="vol" min="0" max="1" step="0.01" value="0.5" aria-label="음량"></div>
+    <div class="volRow"><svg class="volIc" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.5" aria-label="음량"></div>
   </div>
 </header>
 <div class="stage">
@@ -362,7 +466,7 @@ function resetCard(el) {
 
 function closeCard(el) {
   el.classList.remove("open", "isPlaying");
-  setTimeout(() => { if (!el.classList.contains("open")) resetCard(el); }, 450);
+  setTimeout(() => { if (!el.classList.contains("open")) resetCard(el); }, 560);
 }
 
 function openCard(el) {
@@ -377,7 +481,18 @@ function openCard(el) {
   audio.src = srcFor(n);
   audio.play().catch(() => {});
   // 펼쳐진 뒤에 카드가 화면에 다 보이도록 부드럽게 스크롤
-  setTimeout(() => el.scrollIntoView({ behavior:"smooth", block:"nearest" }), 380);
+  setTimeout(() => keepCardVisible(el), 540);
+}
+
+// 펼침/접힘 전환이 끝난 뒤, 상단바에 가리지 않게 카드 전체를 화면 안으로
+function keepCardVisible(el) {
+  if (!el.isConnected || !el.classList.contains("open")) return;
+  const topLine = document.querySelector(".head").offsetHeight + 12;
+  const r = el.getBoundingClientRect();
+  let dy = 0;
+  if (r.bottom > innerHeight - 16) dy = r.bottom - innerHeight + 16;
+  if (r.top - dy < topLine) dy = r.top - topLine;
+  if (dy) smoothScrollTo(scrollY + dy, 600);
 }
 
 list.addEventListener("click", e => {
@@ -458,9 +573,71 @@ const FIELDS = [["composer", "작곡가"], ["title", "곡 이름"], ["era", "시
 let deck = [], lastN = null, score = 0, wrongs = [], qNo = 0, asked = 0, scoreCard = null;
 let curTrack, opts, correct, answers, activeCard, busy = false;
 
+/* ---------- 시험 진행 상황 저장 (새로고침해도 유지) ---------- */
+const SAVE_KEY = "music-quiz-state-v1";
+let doneHTML = []; // 제출한 문제 카드들 (새로고침해도 내역 유지)
+function saveQuiz() {
+  try {
+    sessionStorage.setItem(SAVE_KEY, JSON.stringify({
+      done: doneHTML,
+      deck: deck.map(t => t.n), lastN, score, wrongs, qNo, asked,
+      curN: curTrack ? curTrack.n : null,
+      answers: curTrack ? answers : null
+    }));
+  } catch (e) {}
+}
+function restoreQuiz() {
+  let st = null;
+  try { st = JSON.parse(sessionStorage.getItem(SAVE_KEY)); } catch (e) { return false; }
+  if (!st || st.curN == null) return false;
+  const t = TRACKS.find(x => x.n === st.curN);
+  if (!t) return false;
+  deck = st.deck.map(n => TRACKS.find(x => x.n === n)).filter(Boolean);
+  lastN = st.lastN; score = st.score; wrongs = st.wrongs || []; qNo = st.qNo; asked = st.asked;
+  curTrack = t;
+  opts = makeOptions();
+  correct = { composer: t.composer, title: t.title, era: t.era };
+  answers = st.answers || { composer: null, title: null, era: null };
+  busy = false;
+  // 이전에 제출한 문제 내역 복원
+  doneHTML = st.done || [];
+  doneHTML.forEach(h => {
+    const tmp = document.createElement("template");
+    tmp.innerHTML = h.trim();
+    quizList.insertBefore(tmp.content.firstElementChild, quizList.querySelector(".quizFoot"));
+  });
+  activeCard = document.createElement("div");
+  activeCard.className = "qcard";
+  activeCard.innerHTML = activeHTML();
+  quizList.insertBefore(activeCard, quizList.querySelector(".quizFoot"));
+  FIELDS.forEach(([k]) => {
+    if (answers[k] === null) return;
+    const rv = activeCard.querySelector(`.row[data-k="${k}"] .rv`);
+    rv.textContent = answers[k];
+    rv.classList.remove("empty");
+  });
+  updateMain();
+  loadClip();
+  return true;
+}
+
+let quizGen = 0, resetting = false;
 function startQuiz(immediate) {
+  if (resetting) return;
+  const cards = [...quizList.querySelectorAll(".qcard")];
+  if (immediate || !cards.length || window.scrollY < 40) return runStart(immediate);
+  // 카드를 한꺼번에 지우면 화면이 튀므로: 페이드아웃 + 위로 스크롤한 뒤 새로 시작
+  resetting = true;
+  quizAudio.pause(); replayAudio.pause();
+  quizList.style.pointerEvents = "none";
+  cards.forEach(c => c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280, easing: "ease-out", fill: "forwards" }));
+  smoothScrollTo(0, 600);
+  setTimeout(() => { resetting = false; quizList.style.pointerEvents = ""; runStart(); }, 620);
+}
+function runStart(immediate) {
+  quizGen++;
   replayAudio.pause();
-  deck = []; lastN = null; score = 0; wrongs = []; qNo = 0; asked = 0; scoreCard = null;
+  deck = []; lastN = null; score = 0; wrongs = []; qNo = 0; asked = 0; scoreCard = null; doneHTML = [];
   quizList.querySelectorAll(".qcard").forEach(c => c.remove());
   replayFoot();
   nextTrack(immediate);
@@ -492,24 +669,23 @@ function allAnswered() {
 
 function activeHTML() {
   return `
-    <div class="qTitle">문제 ${qNo}</div>
-    <div class="playRow">
-      <button class="btn play" id="playBtn"><span class="eq2"><i></i><i></i><i></i></span><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span class="qCurTxt" id="qCur">0:00</span></button>
-      <button class="resetBtn" id="resetBtn">0초로 돌아가기</button>
+    <div class="sRow">
+      <div class="qTop">
+        <button class="rePlay" id="playBtn"><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span class="qTime" id="qCur">0:00</span></button>
+        <button class="resetBtn" id="resetBtn">0초로 돌아가기</button>
+      </div>
+      <div class="qProg"><div class="qBar"><div class="qFill" id="qFill"></div></div></div>
+      <div class="sList">${FIELDS.map(([k, label]) => `
+        <div class="row" data-k="${k}">
+          <button class="rowHead" data-k="${k}">
+            <span class="rl">${label}</span>
+            <span class="rv empty">선택하기</span>
+          </button>
+          <div class="rowWrap"><div class="rowInner"><div class="rowOpts">
+            ${opts[k].map((o, i) => `<button class="opt" style="--i:${i}" data-v="${o}">${o}</button>`).join("")}
+          </div></div></div>
+        </div>`).join("")}</div>
     </div>
-    <div class="qProg">
-      <div class="qBar"><div class="qFill" id="qFill"></div></div>
-    </div>
-    <div class="qRows">${FIELDS.map(([k, label]) => `
-      <div class="row" data-k="${k}">
-        <button class="rowHead" data-k="${k}">
-          <span class="rl">${label}</span>
-          <span class="rv empty">선택하기</span>
-        </button>
-        <div class="rowWrap"><div class="rowInner"><div class="rowOpts">
-          ${opts[k].map((o, i) => `<button class="opt" style="--i:${i}" data-v="${o}">${o}</button>`).join("")}
-        </div></div></div>
-      </div>`).join("")}</div>
     <div class="btnRow">
       <button class="btn" id="mainBtn" disabled>확인</button>
     </div>`;
@@ -523,11 +699,12 @@ function smoothScrollTo(y, dur) {
   y = Math.max(0, Math.min(y, max));
   const y0 = window.scrollY, dy = y - y0;
   if (Math.abs(dy) < 2) return;
-  dur = dur || Math.min(950, Math.max(500, Math.abs(dy) * 0.9));
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { window.scrollTo(0, y); return; }
+  dur = dur || Math.min(1600, Math.max(900, Math.abs(dy) * 1.5));
   const t0 = performance.now();
   const step = now => {
     const p = Math.min(1, (now - t0) / dur);
-    window.scrollTo(0, y0 + dy * (1 - Math.pow(1 - p, 4))); // ease-out
+    window.scrollTo(0, y0 + dy * (1 - Math.pow(1 - p, 5))); // ease-out (행 펼침 곡선과 같은 계열)
     if (p < 1) scrollRaf = requestAnimationFrame(step);
   };
   scrollRaf = requestAnimationFrame(step);
@@ -543,6 +720,7 @@ function nextTrack(immediate) {
   correct = { composer: curTrack.composer, title: curTrack.title, era: curTrack.era };
   answers = { composer: null, title: null, era: null };
   busy = false;
+  saveQuiz();
   dropPet();
 
   activeCard = document.createElement("div");
@@ -593,24 +771,21 @@ function keepRowVisible(row) {
   const topLine = top + bar.offsetHeight + 12;          // 상단바 아래 기준선
   const rect = row.getBoundingClientRect();
   const bottomAfter = rect.top + head.offsetHeight + opts.offsetHeight + 16; // 펼친 뒤 아랫변
-  const bottomLimit = window.innerHeight - 16;
+  const foot = document.querySelector(".quizFoot");
+  const reserve = (foot ? foot.offsetHeight : 0) + 40; // 하단 고정 '전체 초기화' 영역만큼 비워 둠
+  const bottomLimit = window.innerHeight - reserve;
   let dy = 0;
   if (bottomAfter > bottomLimit) dy = bottomAfter - bottomLimit;
   else if (rect.top < topLine) dy = rect.top - topLine;
-  if (dy) smoothScrollTo(window.scrollY + dy, 450);
+  if (dy) smoothScrollTo(window.scrollY + dy, 500);
 }
 
 // 고른 행의 위치에서 결과 칸 위치로 칸 전체를 이동 (글자는 크기를 바꾸지 않고 위치만 이동)
 // 복제본(ghost)을 쓰지 않아서 이동 끝에 요소가 바뀌며 글자가 튀는 현상이 없음
 function flyAnswers(card, from, h1, h2) {
-  const EASE = "cubic-bezier(.22,1,.36,1)";
-  const FLY = 480, STEP = 45;
+  const EASE = EASE_OUT;
+  const FLY = 620, STEP = 45;
 
-  const rp = card.querySelector(".rePlay");
-  if (rp) rp.animate(
-    [{ opacity: 0, transform: "scale(.92)" }, { opacity: 1, transform: "none" }],
-    { duration: 500, delay: 200, easing: EASE, fill: "backwards" }
-  );
 
   let count = 0;
   [...card.querySelectorAll(".sPill")].forEach((pill, i) => {
@@ -620,17 +795,34 @@ function flyAnswers(card, from, h1, h2) {
     const t = pill.getBoundingClientRect();           // 결과 칸의 현재 위치 (아직 애니메이션 전)
     const dx = (f.rect.left + f.rect.width / 2) - (t.left + t.width / 2);
     const dy = (f.rect.top + f.rect.height / 2) - (t.top + t.height / 2);
+    // 선택한 글자: 우측 정렬 위치 -> 좌측 정렬 위치로 미끄러지듯 이동 (크기도 함께 보간)
+    const sUser = pill.querySelector(".sUser");
+    if (sUser && f.text) {
+      const nl = sUser.getBoundingClientRect().left;     // 최종 위치 (pill 이동 전에 측정)
+      const tx = f.text.left - nl - dx;                  // pill 자체 이동분(dx)은 제외
+      const sc = f.fs / parseFloat(getComputedStyle(sUser).fontSize) || 1;
+      sUser.style.transformOrigin = "left center";
+      sUser.animate(
+        [{ transform: `translateX(${tx}px) scale(${sc})` }, { transform: "none" }],
+        { duration: FLY, delay: i * STEP, easing: EASE, fill: "backwards" }
+      );
+    }
     pill.animate(
-      [{ transform: `translate(${dx}px, ${dy}px)`, opacity: 0.3 },
+      [{ transform: `translate(${dx}px, ${dy}px)`, opacity: 1 },
        { transform: "none", opacity: 1 }],
       { duration: FLY, delay: i * STEP, easing: EASE, fill: "backwards" }
     );
   });
 
-  if (h1 !== h2) card.animate(
-    [{ height: h1 + "px" }, { height: h2 + "px" }],
-    { duration: FLY + Math.max(0, count - 1) * STEP, easing: EASE, fill: "backwards" }
-  );
+  // 높이 변화: 결과 카드가 길어질 때 끊겨 보이지 않도록 한 번에 부드럽게 늘림 (레이아웃을 매 프레임 다시 계산하지 않게 고정 높이로 이동)
+  if (h1 !== h2) {
+    card.style.height = h1 + "px";
+    card.style.transition = "none";
+    void card.offsetHeight;
+    card.style.transition = `height ${FLY + Math.max(0, count - 1) * STEP}ms ${EASE}`;
+    card.style.height = h2 + "px";
+    setTimeout(() => { card.style.transition = ""; card.style.height = ""; }, FLY + Math.max(0, count - 1) * STEP + 30);
+  }
   return Math.max(0, count - 1) * STEP + FLY;
 }
 
@@ -649,32 +841,63 @@ function updateMain() {
 }
 
 function summaryHTML() {
-  const rows = FIELDS.map(([k, label]) => {
+  const rows = FIELDS.map(([k, label], i) => {
     const ok = answers[k] === correct[k];
     const vals = ok
       ? `<span class="sVal sUser">${correct[k]}</span>`
       : `<span class="sWrong sUser">${answers[k]}</span><span class="sVal">${correct[k]}</span>`;
-    return `<div class="sPill ${ok ? "ok" : "ng"}" data-k="${k}"><span class="sLab">${label}</span><span class="sVals">${vals}</span></div>`;
+    return `<div class="sPill ${ok ? "ok" : "ng"}" data-k="${k}" style="--i:${i}"><span class="sLab">${label}</span><span class="sVals">${vals}</span></div>`;
   }).join("");
   return `<div class="sRow">
-    <button class="rePlay" data-n="${curTrack.n}" aria-label="다시 듣기">
-      <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-      <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
-    </button>
+    <div class="qTop">
+      <div class="playSlot"></div>
+    </div>
     <div class="sList">${rows}</div>
   </div>`;
 }
 
 // 카드 세로가 줄어들면서 요약 형태로 접힘
-function collapse(card, html, after, from) {
+const PLAY_ICONS = '<svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+function collapse(card, html, after, from, keep) {
   const h1 = card.offsetHeight;
+  const GROW = 700; // 결과 칸이 날아오는 시간과 맞춰야 카드 가장자리에 잘리지 않음
   card.classList.remove("anim");
+  card.style.transition = "none";
+  card.style.height = h1 + "px";
+  // 텍스트는 바로 결과로 바꿈 (화면에 그려지기 전에 같은 순간 안에서 처리)
+  const curTxt = card.querySelector("#qCur") ? card.querySelector("#qCur").textContent : "0:00";
   card.innerHTML = html;
   card.classList.add("done");
-  const h2 = card.offsetHeight; // 결과 카드의 최종 높이
-  const flyMs = from ? flyAnswers(card, from, h1, h2) : 0;
-  // 결과 애니메이션이 끝나고 잠깐만 머물렀다가 다음 문제로
-  setTimeout(after, flyMs + 150);
+  const slot = card.querySelector(".playSlot");
+  if (keep && slot) {
+    keep.style.transition = "none";
+    keep.removeAttribute("id");
+    keep.className = "rePlay";
+    keep.dataset.n = curTrack.n;
+    keep.setAttribute("aria-label", "다시 듣기");
+    keep.innerHTML = PLAY_ICONS + `<span class="qTime">${curTxt}</span>`;
+    slot.replaceWith(keep);
+  }
+  // 결과 카드의 실제 최종 높이를 바로 잼 (높이 고정을 풀고 측정 후 다시 h1에서 시작)
+  // 결과 카드의 실제 높이(버튼에 맞춘 높이)로 부드럽게 줄어듦
+  card.style.height = "";
+  const h2 = card.offsetHeight;
+  card.style.height = h1 + "px";
+  void card.offsetHeight;
+  card.style.transition = `height ${GROW}ms ${EASE_OUT}`;
+  card.style.height = h2 + "px";
+  setTimeout(() => { card.style.transition = ""; card.style.height = ""; }, GROW + 30);
+  if (keep) { void keep.offsetWidth; keep.style.transition = ""; }
+  const snap = card.cloneNode(true);
+  snap.removeAttribute("style");
+  doneHTML.push(snap.outerHTML);
+  saveQuiz();
+  setTimeout(() => { card.style.pointerEvents = ""; }, 500);
+  card.classList.add("fresh");
+  setTimeout(() => card.classList.remove("fresh"), 1700);
+  const flyMs = from ? flyAnswers(card, from, h2, h2) : 0;
+  const gen = quizGen;
+  setTimeout(() => { if (gen === quizGen) after(); }, flyMs + 900); // 초기화되었으면 다음 문제로 넘어가지 않음
 }
 
 function submit() {
@@ -695,9 +918,23 @@ function submit() {
     node.classList.remove("open");
     const wrap = node.querySelector(".rowWrap");
     if (wrap) wrap.remove();
-    from[r.dataset.k] = { rect: r.querySelector(".rowHead").getBoundingClientRect(), node };
+    const rv = r.querySelector(".rv");
+    const rg = document.createRange(); rg.selectNodeContents(rv);
+    from[r.dataset.k] = {
+      rect: r.querySelector(".rowHead").getBoundingClientRect(), node,
+      text: rg.getBoundingClientRect(),                 // 우측 정렬된 글자의 실제 위치
+      fs: parseFloat(getComputedStyle(rv).fontSize)
+    };
   });
-  collapse(card, summaryHTML(), nextTrack, from);
+  const playEl = card.querySelector("#playBtn");
+  card.style.pointerEvents = "none";
+  // 확인 버튼이 툭 사라지지 않도록 부드럽게 줄어들며 사라진 뒤 결과로 바뀜
+  const mb = card.querySelector("#mainBtn");
+  if (mb) mb.animate(
+    [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "scale(.96)" }],
+    { duration: 220, easing: "ease-out", fill: "forwards" }
+  );
+  collapse(card, summaryHTML(), nextTrack, from, playEl); // 제출과 동시에 바로 시작
 }
 
 // 음원만 준비하고 재생은 사용자가 버튼을 눌렀을 때만
@@ -739,9 +976,10 @@ function syncPlay() {
   const b = document.getElementById("playBtn");
   if (!b) return;
   const playing = !quizAudio.paused;
-  const label = playing ? ICON_PAUSE : ICON_PLAY;
   b.classList.toggle("isPlaying", playing);
-  b.querySelector(".pl").innerHTML = label;
+  const pl = b.querySelector(".pl");
+  const want = playing ? "p" : "s";
+  if (pl.dataset.st !== want) { pl.dataset.st = want; pl.innerHTML = playing ? ICON_PAUSE : ICON_PLAY; }
 
   // 멈춘 상태(재생 시작 후)에서만 초기화 버튼 표시
   const reset = document.getElementById("resetBtn");
@@ -819,6 +1057,7 @@ quizList.addEventListener("click", e => {
     const row = opt.closest(".row");
     const k = row.dataset.k;
     answers[k] = opt.dataset.v;
+    saveQuiz();
     const rv = row.querySelector(".rv");
     rv.textContent = opt.dataset.v;
     rv.classList.remove("empty");
@@ -840,10 +1079,12 @@ const quizEl = document.getElementById("quiz");
 const pill = document.getElementById("pill");
 let quizStarted = false; // 시험을 한 번이라도 시작했는지 (듣기 갔다 와도 시험지 유지)
 
-function movePill() {
+function movePill(instant) {
   const b = document.querySelector(".nav button.on");
+  if (instant === true) pill.style.transition = "none"; // 첫 로드/리사이즈에서는 애니메이션 없이 제자리
   pill.style.left = b.offsetLeft + "px";
   pill.style.width = b.offsetWidth + "px";
+  if (instant === true) { void pill.offsetWidth; pill.style.transition = ""; }
 }
 
 function show(which) {
@@ -856,48 +1097,33 @@ function show(which) {
   tabListen.classList.toggle("on", !toQuiz);
   tabQuiz.classList.toggle("on", toQuiz);
   movePill();
-  window.scrollTo(0, 0);
+  if (!toQuiz) window.scrollTo(0, 0);
 
   if (toQuiz) {
     audio.pause();
     replayFoot();
     if (!quizStarted) { quizStarted = true; startQuiz(true); }
+    // 시험 탭으로 오면 자동 스크롤 없이 바로, 가장 아래(새) 시험지 카드가 상단바 아래에 오도록 이동
+    const cards = quizList.querySelectorAll(".qcard");
+    const last = cards[cards.length - 1];
+    if (last) {
+      // 등장 애니메이션(transform)의 영향을 받지 않도록 레이아웃 위치로 계산
+      let y = 0;
+      for (let el = last; el; el = el.offsetParent) y += el.offsetTop;
+      const mt = parseFloat(getComputedStyle(last).scrollMarginTop) || 0;
+      window.scrollTo(0, Math.max(0, y - mt));
+    }
   }
   else { quizAudio.pause(); replayAudio.pause(); }
 }
 tabListen.onclick = () => show("listen");
 tabQuiz.onclick = () => show("quiz");
-window.addEventListener("resize", movePill);
+window.addEventListener("resize", () => movePill(true));
 
 document.querySelector(".ytBtn").style.setProperty("--pet", `url(${document.querySelector(".petImg").src})`);
 renderList();
-movePill();
-/* ---------- 캐릭터: 끊김 없이 부드럽게, 매번 조금씩 다른 둥실 움직임 ---------- */
-(function () {
-  const img = document.querySelector(".petImg");
-  if (!img) return;
-  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const rnd = (a, b) => a + Math.random() * (b - a);
-  // 목표 움직임(위아래 폭, 좌우 폭, 기울기, 속도)을 주기적으로 새로 고름
-  const newTarget = () => ({ ay: rnd(2.5, 5), ax: rnd(0.8, 2), ar: rnd(0.3, 0.9), w: rnd(0.9, 1.5) });
-  let cur = newTarget(), tgt = newTarget();
-  const phase = Math.random() * Math.PI * 2;
-  let t = 0, last = performance.now(), nextPick = last + rnd(3000, 6000);
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000);
-    last = now; t += dt;
-    if (now > nextPick) { tgt = newTarget(); nextPick = now + rnd(3000, 6000); }
-    // 현재 값을 목표로 연속적으로 밀어 줌 -> 속도가 갑자기 바뀌거나 멈추지 않음
-    const k = 1 - Math.exp(-dt * 0.8);
-    for (const key of ["ay", "ax", "ar", "w"]) cur[key] += (tgt[key] - cur[key]) * k;
-    const y = cur.ay * Math.sin(cur.w * t + phase);
-    const x = cur.ax * Math.sin(cur.w * 0.6 * t + phase * 1.7);
-    const r = cur.ar * Math.sin(cur.w * 0.8 * t + phase * 0.5);
-    img.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(2)}deg)`;
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-})();
+movePill(true);
+if (restoreQuiz()) quizStarted = true;
 /* ---------- 캐릭터: 위에서 블러가 풀리며 내려오기 ---------- */
 function dropPet() {
   const el = document.querySelector(".pet");
@@ -960,7 +1186,7 @@ function setHeadOff() {
 }
 setHeadOff();
 window.addEventListener("resize", () => { setBarVars(); setHeadOff(); });
-document.fonts && document.fonts.ready.then(() => { setBarVars(); setHeadOff(); });
+document.fonts && document.fonts.ready.then(() => { setBarVars(); setHeadOff(); movePill(true); });
 </script>
 </body>
 </html>
