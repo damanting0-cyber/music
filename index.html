@@ -366,6 +366,8 @@
   /* 키보드 포커스는 모든 환경에서 표시 */
   button:focus-visible,a:focus-visible{outline:2px solid #ffc4e4;outline-offset:2px}
   input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(255,196,228,.5)}
+  /* 재생 중 아이콘이 흰 배경에 흰색이라 사라지던 문제 */
+  .sRow .rePlay.isPlaying,.sRow .rePlay.isPlaying .qTime{color:#1c0523}
 </style>
 </head>
 <body>
